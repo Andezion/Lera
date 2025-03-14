@@ -1,31 +1,11 @@
-/*.button*/
-/*{*/
-/*    -fx-background-color: linear-gradient(to bottom, #ff6600, #cc5500); !* Градиент оранжевого *!*/
-/*    -fx-text-fill: white; !* Белый цвет текста *!*/
-/*    -fx-font-size: 10px; !* Крупный текст *!*/
-/*    -fx-font-weight: bold; !* Жирный текст *!*/
-/*    -fx-padding: 10px 20px; !* Отступы внутри *!*/
-/*    -fx-background-radius: 10px; !* Закруглённые края *!*/
-/*    -fx-border-color: white; !* Белая рамка *!*/
-/*    -fx-border-radius: 10px;*/
-/*}*/
-/*.button:hover*/
-/*{*/
-/*    -fx-background-color: linear-gradient(to bottom, #ff8800, #dd6600); !* Светлее при наведении *!*/
-/*}*/
-
-/*.button:pressed*/
-/*{*/
-/*    -fx-background-color: #aa4400; !* Темнее при нажатии *!*/
-/*}*/
-
 .button
 {
-    -fx-background-color: #0b63f6; /* Цвет кнопки */
-    -fx-text-fill: white; /* Цвет текста */
-    -fx-font-size: 10px; /* Размер шрифта */
+    -fx-background-color: #0b63f6;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
     -fx-padding: 10px 20px;
-    -fx-background-radius: 8px; /* Скругление углов */
+    -fx-background-radius: 8px;
     -fx-effect: dropshadow(gaussian, rgb(120, 159, 226), 10, 0.3, 0, 5);
 
     -fx-transition: all 0.5s ease-in-out;
@@ -36,11 +16,21 @@
 
 .button:hover
 {
-    -fx-translate-y: -3px; /* Поднять кнопку вверх */
-    -fx-effect: dropshadow(gaussian, rgba(120, 159, 226), 20, 0.4, 0, 10);
+    -fx-translate-y: -3px;
+    -fx-effect: dropshadow(gaussian, rgba(120, 159, 226), 30, 0.4, 0, 10);
 }
 
 .button:pressed
 {
     -fx-background-color: #03245c;
 }
+
+.label
+{
+    -fx-font-size: 15px;
+    -fx-text-fill: #000000;
+    -fx-font-weight: bold;
+    -fx-font-family: "Arial";
+    -fx-padding: 10px;
+}
+
