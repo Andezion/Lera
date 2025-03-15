@@ -17,7 +17,7 @@
 .button:hover
 {
     -fx-translate-y: -3px;
-    -fx-effect: dropshadow(gaussian, rgba(120, 159, 226), 30, 0.4, 0, 10);
+    -fx-effect: dropshadow(gaussian, rgba(120, 159, 226), 20, 0.4, 0, 10);
 }
 
 .button:pressed
@@ -27,10 +27,34 @@
 
 .label
 {
-    -fx-font-size: 15px;
+    -fx-font-size: 17px;
     -fx-text-fill: #000000;
     -fx-font-weight: bold;
     -fx-font-family: "Arial";
     -fx-padding: 10px;
+}
+
+.combo-box
+{
+    -fx-background-color: white;
+    -fx-border-radius: 0px;
+    -fx-border-color: #04368f;
+    -fx-font-size: 14px;
+    -fx-font-family: "Arial";
+    -fx-font-weight: bold;
+    -fx-border-width: 2px;
+
+    -fx-pref-width: 200px;
+    -fx-pref-height: 50px;
+}
+
+.combo-box:hover
+{
+    -fx-border-color: #06b6fa;
+}
+
+.combo-box:disabled
+{
+    -fx-opacity: 0.5;
 }
 
