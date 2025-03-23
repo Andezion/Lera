@@ -19,22 +19,15 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class MainView extends Application
 {
     private VBox centerPane;
-
-    final Map<String, String> productDescriptions = Map.of(
-            "JTF 1264", "JT Sprockets - высококачественная звёздочка для мотоциклов...",
-            "JTF 1180", "JT Sprockets - универсальная звёздочка для спортивных мотоциклов..."
-    );
-
-    final Map<String, String> productImages = Map.of(
-            "JTF 1264", "/photo1.png",
-            "JTF 1180", "/photo2.png"
-    );
+    int pointer_for_button = 0;
 
     @Override
     public void start(Stage stage)
@@ -61,108 +54,96 @@ public class MainView extends Application
 
         rightPane.getChildren().addAll(user_button, tran_button, order_button, parts_button);
 
-        ComboBox<String> firstBox = new ComboBox<>();
-        ComboBox<String> secondBox = new ComboBox<>();
-        ComboBox<String> thirdBox = new ComboBox<>();
+        parts_button.setOnAction(e -> {
 
-        firstBox.getItems().addAll("Motostars", "Chains", "Dampers", "Engine");
-        firstBox.setPromptText("Pick part");
+            if (!leftPane.getChildren().isEmpty() && pointer_for_button == 0)
+            {
+                pointer_for_button = 1;
 
-        secondBox.setDisable(true);
-        thirdBox.setDisable(true);
-
-        thirdBox.setOnAction(event -> {
-            String selectedProduct = thirdBox.getValue();
-            updateCenterPane(selectedProduct);
-        });
+                ComboBox<String> firstBox = new ComboBox<>();
+                ComboBox<String> secondBox = new ComboBox<>();
+                ComboBox<String> thirdBox = new ComboBox<>();
 
 
-        leftPane.getChildren().addAll(firstBox, secondBox, thirdBox);
+                try
+                {
+                    firstBox.getItems().addAll(TakeFromDatabase.getCategories());
+                }
+                catch (SQLException ex)
+                {
+                    throw new RuntimeException(ex);
+                }
 
-        firstBox.setOnAction(event ->
-        {
-            secondBox.getItems().clear();
-            secondBox.setDisable(false);
-            thirdBox.setDisable(true);
+                firstBox.setPromptText("Pick part");
 
-            String selected = firstBox.getValue();
-            if ("Motostars".equals(selected))
-            {
-                secondBox.getItems().addAll("Jt", "Ognibene", "Renthal");
-            }
-            else if ("Chains".equals(selected))
-            {
-                secondBox.getItems().addAll("CZ Chains", "DID", "EK Chain");
-            }
-            else if ("Dampers".equals(selected))
-            {
-                secondBox.getItems().addAll("Shock absorbers", "Bearings", "Forks");
-            }
-            else if ("Engine".equals(selected))
-            {
-                secondBox.getItems().addAll("Clutch", "Pistons", "Crankshaft");
-            }
-            secondBox.setPromptText("Select a subcategory");
-        });
+                secondBox.setDisable(true);
+                thirdBox.setDisable(true);
 
-        secondBox.setOnAction(event ->
-        {
-            thirdBox.getItems().clear();
-            thirdBox.setDisable(false);
+                leftPane.getChildren().addAll(firstBox, secondBox, thirdBox);
 
-            String selected = secondBox.getValue();
-            if ("Jt".equals(selected))
-            {
-                thirdBox.getItems().addAll("JTF 1264", "JTF 1180");
-            }
-            else if ("Ognibene".equals(selected))
-            {
-                thirdBox.getItems().addAll("8144-Z45", "525.46");
-            }
-            else if ("Renthal".equals(selected))
-            {
-                thirdBox.getItems().addAll("J416-13", "J558-14");
-            }
+                firstBox.setOnAction(event ->
+                {
+                    secondBox.getItems().clear();
+                    secondBox.setDisable(false);
+                    thirdBox.setDisable(true);
 
-            else if("CZ Chains".equals(selected))
-            {
-                thirdBox.getItems().addAll("420-98", "420-90");
-            }
-            else if("DID".equals(selected))
-            {
-                thirdBox.getItems().addAll("NZ SDH 428 124", "NZ SDH 428 134");
-            }
-            else if("EK Chain".equals(selected))
-            {
-                thirdBox.getItems().addAll("420Sh 140", "428Shdr 140");
-            }
+                    String selectedCategory = firstBox.getValue();
+                    try
+                    {
+                        secondBox.getItems().addAll(TakeFromDatabase.getProducers(selectedCategory));
+                    }
+                    catch (SQLException ex)
+                    {
+                        throw new RuntimeException(ex);
+                    }
+                    secondBox.setPromptText("Select a producer");
+                });
 
-            else if("Shock absorbers".equals(selected))
-            {
-                thirdBox.getItems().addAll("37-1119", "37-1125");
-            }
-            else if("Bearings".equals(selected))
-            {
-                thirdBox.getItems().addAll("CH25-1244", "CH25-1327");
-            }
-            else if("Forks".equals(selected))
-            {
-                thirdBox.getItems().addAll("38-6075", "38-6020");
-            }
+                secondBox.setOnAction(event ->
+                {
+                    thirdBox.getItems().clear();
+                    thirdBox.setDisable(false);
 
-            else if("Clutch".equals(selected))
-            {
-                thirdBox.getItems().addAll("CRF 250 R", "CRF 251 R");
+                    String selectedProducer = secondBox.getValue();
+                    try
+                    {
+                        List<Part> parts = TakeFromDatabase.getParts(selectedProducer);
+
+                        thirdBox.getItems().addAll(
+                                parts.stream().map(Part::getName).toList()
+                        );
+                    }
+                    catch (SQLException ex)
+                    {
+                        throw new RuntimeException(ex);
+                    }
+                    thirdBox.setPromptText("Pick product");
+                });
+
+                thirdBox.setOnAction(event ->
+                {
+                    String selectedProduct = thirdBox.getValue();
+
+                    try
+                    {
+                        System.out.println("Выбранная деталь: " + selectedProduct);
+
+                        Part partDetails = TakeFromDatabase.getPartByName(selectedProduct);
+
+                        if (partDetails == null)
+                        {
+                            System.out.println("Я просто повешусь нахуй");
+                            return;
+                        }
+
+                        updateCenterPane(partDetails);
+                    }
+                    catch (SQLException ex)
+                    {
+                        throw new RuntimeException(ex);
+                    }
+                });
             }
-            else if("Pistons".equals(selected))
-            {
-                thirdBox.getItems().addAll("SX65 09-18", "SX65 97-08");
-            }
-            else if("Crankshaft".equals(selected))
-            {
-                thirdBox.getItems().addAll("YZ125 01-04", "SX 16-18");
-            }
-            thirdBox.setPromptText("Pick product");
         });
 
         Scene scene = new Scene(root, 1400, 700);
@@ -174,31 +155,46 @@ public class MainView extends Application
         stage.show();
     }
 
-    private void updateCenterPane(String productName)
+    private void updateCenterPane(Part partDetails)
     {
         centerPane.getChildren().clear();
 
-        String description = productDescriptions.getOrDefault(productName, "Описание не найдено");
+        Label nameLabel = new Label("Name: " + partDetails.getName());
+        Label descriptionLabel = new Label("Description: " + partDetails.getDescription());
+        Label priceLabel = new Label("Price: $" + partDetails.getPrice());
+        Label stockLabel = new Label("In Stock: " + partDetails.getQuantityInStock());
+        Label soldLabel = new Label("Sold: " + partDetails.getQuantitySold());
 
-        Label titleLabel = new Label(productName);
-        titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        ImageView imageView = new ImageView(new Image(partDetails.getImageUrl()));
+        imageView.setFitWidth(200);
+        imageView.setFitHeight(200);
 
-        Label descriptionLabel = new Label(description);
-        descriptionLabel.setWrapText(true);
+        VBox detailsBox = new VBox(10, nameLabel, descriptionLabel, priceLabel, stockLabel, soldLabel, imageView);
+        detailsBox.setAlignment(Pos.CENTER);
 
-        ImageView imageView = new ImageView();
-        imageView.setFitWidth(300);
-        imageView.setPreserveRatio(true);
-
-        String imagePath = productImages.get(productName);
-        if (imagePath != null)
-        {
-            imageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath))));
-        }
-
-        centerPane.getChildren().addAll(titleLabel, imageView, descriptionLabel);
+        centerPane.getChildren().add(detailsBox);
+//        centerPane.getChildren().clear();
+//
+//        String description = productDescriptions.getOrDefault(productName, "Описание не найдено");
+//
+//        Label titleLabel = new Label(productName);
+//        titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+//
+//        Label descriptionLabel = new Label(description);
+//        descriptionLabel.setWrapText(true);
+//
+//        ImageView imageView = new ImageView();
+//        imageView.setFitWidth(300);
+//        imageView.setPreserveRatio(true);
+//
+//        String imagePath = productImages.get(productName);
+//        if (imagePath != null)
+//        {
+//            imageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath))));
+//        }
+//
+//        centerPane.getChildren().addAll(titleLabel, imageView, descriptionLabel);
     }
-
 
     private VBox createPane(String text, Color color, double width)
     {
