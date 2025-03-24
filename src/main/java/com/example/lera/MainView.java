@@ -16,6 +16,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -38,7 +40,7 @@ public class MainView extends Application
         leftPane.setAlignment(Pos.TOP_CENTER);
         leftPane.setSpacing(30);
 
-        centerPane = createPane("Список запчастей", Color.WHITE, 1000);
+        centerPane = createPane("List of details", Color.WHITE, 1000);
         centerPane.setAlignment(Pos.TOP_LEFT);
 
         VBox rightPane = createPane("Options", Color.LIGHTBLUE, 100);
@@ -126,13 +128,13 @@ public class MainView extends Application
 
                     try
                     {
-                        System.out.println("Выбранная деталь: " + selectedProduct);
+                        System.out.println("Выбранная деталь: " + selectedProduct); // это для себя - можно убрать
 
                         Part partDetails = TakeFromDatabase.getPartByName(selectedProduct);
 
                         if (partDetails == null)
                         {
-                            System.out.println("Я просто повешусь нахуй");
+                            System.out.println("Я просто повешусь нахуй"); // это если деталь не описал
                             return;
                         }
 
@@ -159,41 +161,47 @@ public class MainView extends Application
     {
         centerPane.getChildren().clear();
 
-        Label nameLabel = new Label("Name: " + partDetails.getName());
-        Label descriptionLabel = new Label("Description: " + partDetails.getDescription());
-        Label priceLabel = new Label("Price: $" + partDetails.getPrice());
-        Label stockLabel = new Label("In Stock: " + partDetails.getQuantityInStock());
-        Label soldLabel = new Label("Sold: " + partDetails.getQuantitySold());
+        Label nameLabel = createBoldLabel("Name: ", partDetails.getName());
+        Label descriptionLabel = createBoldLabel("Description: ", partDetails.getDescription());
+        Label priceLabel = createBoldLabel("Price: $", String.valueOf(partDetails.getPrice()));
+        Label stockLabel = createBoldLabel("In Stock: ", String.valueOf(partDetails.getQuantityInStock()));
+        Label soldLabel = createBoldLabel("Sold: ", String.valueOf(partDetails.getQuantitySold()));
 
         ImageView imageView = new ImageView(new Image(partDetails.getImageUrl()));
-        imageView.setFitWidth(200);
-        imageView.setFitHeight(200);
+        imageView.setFitWidth(300);
+        imageView.setPreserveRatio(true);
 
-        VBox detailsBox = new VBox(10, nameLabel, descriptionLabel, priceLabel, stockLabel, soldLabel, imageView);
-        detailsBox.setAlignment(Pos.CENTER);
+        VBox textBox = new VBox(5, nameLabel, descriptionLabel, priceLabel, stockLabel, soldLabel);
+        textBox.setAlignment(Pos.TOP_LEFT);
+        textBox.setMaxWidth(400);
 
-        centerPane.getChildren().add(detailsBox);
-//        centerPane.getChildren().clear();
-//
-//        String description = productDescriptions.getOrDefault(productName, "Описание не найдено");
-//
-//        Label titleLabel = new Label(productName);
-//        titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-//
-//        Label descriptionLabel = new Label(description);
-//        descriptionLabel.setWrapText(true);
-//
-//        ImageView imageView = new ImageView();
-//        imageView.setFitWidth(300);
-//        imageView.setPreserveRatio(true);
-//
-//        String imagePath = productImages.get(productName);
-//        if (imagePath != null)
-//        {
-//            imageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath))));
-//        }
-//
-//        centerPane.getChildren().addAll(titleLabel, imageView, descriptionLabel);
+        HBox imageBox = new HBox(imageView);
+        imageBox.setAlignment(Pos.BOTTOM_LEFT);
+
+        VBox mainBox = new VBox(10, textBox, imageBox);
+        mainBox.setAlignment(Pos.TOP_LEFT);
+        mainBox.setPadding(new Insets(10));
+
+        centerPane.getChildren().add(mainBox);
+    }
+
+    private Label createBoldLabel(String labelText, String valueText)
+    {
+        Label label = new Label();
+        label.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
+
+        Text boldText = new Text(labelText);
+        boldText.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+
+        Text normalText = new Text(valueText);
+        normalText.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
+
+        TextFlow textFlow = new TextFlow(boldText, normalText);
+        textFlow.setMaxWidth(350);
+
+        label.setGraphic(textFlow);
+        return label;
+
     }
 
     private VBox createPane(String text, Color color, double width)
