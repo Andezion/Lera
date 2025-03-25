@@ -27,6 +27,7 @@ import java.util.Objects;
 
 public class MainView extends Application
 {
+    private VBox leftPane;
     private VBox centerPane;
     int pointer_for_button = 0;
 
@@ -35,7 +36,7 @@ public class MainView extends Application
     {
         HBox root = new HBox();
 
-        VBox leftPane = createPane("Categories", Color.LIGHTGRAY, 300);
+        leftPane = createPane("Categories", Color.LIGHTGRAY, 300);
         leftPane.setAlignment(Pos.TOP_CENTER);
         leftPane.setSpacing(30);
 
@@ -66,7 +67,6 @@ public class MainView extends Application
                 ComboBox<String> firstBox = new ComboBox<>();
                 ComboBox<String> secondBox = new ComboBox<>();
                 ComboBox<String> thirdBox = new ComboBox<>();
-
 
                 try
                 {
@@ -158,6 +158,110 @@ public class MainView extends Application
         stage.show();
     }
 
+    private void showClientDetails(int clientId)
+    {
+        String URL = "jdbc:postgresql://localhost:5432/postgres";
+        String USER = "postgres";
+        String PASSWORD = "Ffdss321!";
+
+        String query = "SELECT c.id AS client_id, c.first_name, c.last_name, " +
+                "o.id AS order_id, o.total_amount " +
+                "FROM clients c " +
+                "JOIN client_orders co ON c.id = co.client_id " +
+                "JOIN orders o ON co.order_id = o.id " +
+                "WHERE c.id = ? " +
+                "ORDER BY o.order_date DESC;";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(query,
+                     ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY))
+        {
+
+            pstmt.setInt(1, clientId);
+            ResultSet rs = pstmt.executeQuery();
+
+            StringBuilder orderList = new StringBuilder();
+            double totalSum = 0;
+
+            if (rs.first())
+            {
+                String firstName = rs.getString("first_name");
+                String lastName = rs.getString("last_name");
+
+                rs.beforeFirst();
+                while (rs.next())
+                {
+                    String orderId = rs.getString("order_id");
+                    String totalAmount = rs.getString("total_amount");
+                    orderList.append(orderId).append("\n");
+                    totalSum += Double.parseDouble(totalAmount);
+                }
+
+                VBox clientDetails = new VBox();
+                clientDetails.setPadding(new Insets(10));
+                clientDetails.setSpacing(10);
+
+                Label clientIdLabel = new Label();
+                Text clientIdText = new Text("Client ID: ");
+                clientIdText.setStyle("-fx-font-weight: bold;");
+                Text clientIdValueText = new Text(String.valueOf(clientId));
+                clientIdValueText.setStyle("-fx-font-weight: normal;");
+
+                clientIdLabel.setGraphic(new HBox(clientIdText, clientIdValueText));
+
+
+                Label nameLabel = new Label();
+                Text nameText = new Text("Name: ");
+                nameText.setStyle("-fx-font-weight: bold;");
+                Text nameValueText = new Text(firstName);
+                nameValueText.setStyle("-fx-font-weight: normal;");
+
+                nameLabel.setGraphic(new HBox(nameText, nameValueText));
+
+
+                Label lastNameLabel = new Label();
+                Text lastnameText = new Text("Name: ");
+                lastnameText.setStyle("-fx-font-weight: bold;");
+                Text lastnameValueText = new Text(lastName);
+                lastnameValueText.setStyle("-fx-font-weight: normal;");
+
+                lastNameLabel.setGraphic(new HBox(lastnameText, lastnameValueText));
+
+
+                Label orderListLabel = new Label();
+                Text orderListText = new Text("Orders: ");
+                orderListText.setStyle("-fx-font-weight: bold;");
+                Text orderListValueText = new Text(orderList.toString());
+                orderListValueText.setStyle("-fx-font-weight: normal;");
+
+                orderListLabel.setGraphic(new HBox(orderListText, orderListValueText));
+
+
+                Label totalAmountLabel = new Label();
+                Text totalAmountText = new Text("Total: ");
+                totalAmountText.setStyle("-fx-font-weight: bold;");
+                Text totalAmountValueText = new Text(String.valueOf(totalSum));
+                totalAmountValueText.setStyle("-fx-font-weight: normal;");
+
+                totalAmountLabel.setGraphic(new HBox(totalAmountText, totalAmountValueText));
+
+                clientDetails.getChildren().add(clientIdLabel);
+                clientDetails.getChildren().add(nameLabel);
+                clientDetails.getChildren().add(lastNameLabel);
+                clientDetails.getChildren().add(orderListLabel);
+                clientDetails.getChildren().add(totalAmountLabel);
+
+                leftPane.getChildren().clear();
+                leftPane.getChildren().add(clientDetails);
+            }
+
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     private void loadUsers()
     {
         centerPane.getChildren().clear();
@@ -166,13 +270,12 @@ public class MainView extends Application
         String USER = "postgres";
         String PASSWORD = "Ffdss321!";
 
-        // Новый запрос для выборки данных клиентов и заказов
         String query = "SELECT c.id AS client_id, c.first_name, c.last_name, " +
                 "o.id AS order_id, o.order_date, o.total_amount " +
                 "FROM clients c " +
                 "JOIN client_orders co ON c.id = co.client_id " +
                 "JOIN orders o ON co.order_id = o.id " +
-                "ORDER BY o.order_date DESC;"; // Сортировка по дате заказа (от новых к старым)
+                "ORDER BY o.order_date DESC;";
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement stmt = conn.createStatement();
@@ -213,6 +316,8 @@ public class MainView extends Application
                 Label orderIdLabel = new Label(String.valueOf(orderId));
                 Label orderDateLabel = new Label(orderDate);
                 Label totalAmountLabel = new Label(totalAmount);
+
+                clientIdLabel.setOnMouseClicked(event -> showClientDetails(clientId));
 
                 clientIdLabel.setAlignment(Pos.CENTER);
                 firstNameLabel.setAlignment(Pos.CENTER);
