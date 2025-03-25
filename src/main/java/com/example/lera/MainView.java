@@ -317,7 +317,7 @@ public class MainView extends Application
                 Label orderDateLabel = new Label(orderDate);
                 Label totalAmountLabel = new Label(totalAmount);
 
-                clientIdLabel.setOnMouseClicked(event -> showClientDetails(clientId));
+                clientIdLabel.setOnMouseClicked(event -> showClientDetails(clientId)); // !
 
                 clientIdLabel.setAlignment(Pos.CENTER);
                 firstNameLabel.setAlignment(Pos.CENTER);
