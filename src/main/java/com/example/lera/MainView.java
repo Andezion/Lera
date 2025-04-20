@@ -182,7 +182,7 @@ public class MainView extends Application
         catch (SQLException e)
         {
             e.printStackTrace();
-        }git 
+        }
     }
 
     private void showClientDetails(int clientId)
