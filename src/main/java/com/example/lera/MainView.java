@@ -158,6 +158,33 @@ public class MainView extends Application
         stage.show();
     }
 
+    private void showOrderDetails(int orderID)
+    {
+        String URL = "jdbc:postgresql://localhost:5432/postgres";
+        String USER = "postgres";
+        String PASSWORD = "Ffdss321!";
+
+        String query = "SELECT o.id, o.order_date, o.total_amount, " +
+                "STRING_AGG(p.name, ', ') AS parts_list " +
+                "FROM orders o " +
+                "JOIN order_parts op ON o.id = op.order_id " +
+                "JOIN warehouse w ON op.warehouse_id = w.id " +
+                "JOIN parts p ON w.part_id = p.id " +
+                "GROUP BY o.id, o.order_date, o.total_amount " +
+                "ORDER BY o.id;";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(query,
+                     ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY))
+        {
+
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }git 
+    }
+
     private void showClientDetails(int clientId)
     {
         String URL = "jdbc:postgresql://localhost:5432/postgres";
