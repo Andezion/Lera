@@ -57,7 +57,6 @@ public class MainView extends Application
         user_button.setOnAction(e -> loadUsers());
         order_button.setOnAction(event -> loadDatabase());
         parts_button.setOnAction(e -> {
-
             if (!leftPane.getChildren().isEmpty() && pointer_for_button == 0)
             {
                 pointer_for_button = 1;
@@ -195,7 +194,6 @@ public class MainView extends Application
                 String totalAmount = rs.getString("total_amount");
                 String clientId = rs.getString("client_id");
 
-                // Разбиваем строки по запятой и собираем в колонки
                 String partsRaw = rs.getString("parts_list");
                 String producersRaw = rs.getString("producers_list");
 
@@ -279,7 +277,6 @@ public class MainView extends Application
             e.printStackTrace();
         }
     }
-
 
     private void showClientDetails(int clientId)
     {
