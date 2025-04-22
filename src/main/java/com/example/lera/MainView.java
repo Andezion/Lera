@@ -21,9 +21,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class MainView extends Application
 {
@@ -160,24 +158,121 @@ public class MainView extends Application
 
     private void showOrderDetails(int orderID)
     {
+        leftPane.getChildren().clear();
+
         String URL = "jdbc:postgresql://localhost:5432/postgres";
         String USER = "postgres";
         String PASSWORD = "Ffdss321!";
 
-        String query = "SELECT o.id, o.order_date, o.total_amount, " +
-                "STRING_AGG(p.name, ', ') AS parts_list " +
-                "FROM orders o " +
-                "JOIN order_parts op ON o.id = op.order_id " +
-                "JOIN warehouse w ON op.warehouse_id = w.id " +
-                "JOIN parts p ON w.part_id = p.id " +
-                "GROUP BY o.id, o.order_date, o.total_amount " +
+        String query = "SELECT \n" +
+                "    o.id AS order_id,\n" +
+                "    o.order_date,\n" +
+                "    o.total_amount,\n" +
+                "    c.id AS client_id,\n" +
+                "    STRING_AGG(DISTINCT p.name, ', ') AS parts_list,\n" +
+                "    STRING_AGG(DISTINCT pr.name, ', ') AS producers_list\n" +
+                "FROM orders o\n" +
+                "JOIN client_orders co ON o.id = co.order_id\n" +
+                "JOIN clients c ON co.client_id = c.id\n" +
+                "JOIN order_parts op ON o.id = op.order_id\n" +
+                "JOIN warehouse w ON op.warehouse_id = w.id\n" +
+                "JOIN parts p ON w.part_id = p.id\n" +
+                "JOIN producers pr ON p.producer_id = pr.id\n" +
+                "WHERE o.id = ?\n" +
+                "GROUP BY o.id, o.order_date, o.total_amount, c.id\n" +
                 "ORDER BY o.id;";
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(query,
                      ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY))
         {
+            pstmt.setInt(1, orderID);
+            ResultSet rs = pstmt.executeQuery();
 
+            if (rs.first())
+            {
+                String orderDate = rs.getString("order_date");
+                String totalAmount = rs.getString("total_amount");
+                String clientId = rs.getString("client_id");
+
+                // Разбиваем строки по запятой и собираем в колонки
+                String partsRaw = rs.getString("parts_list");
+                String producersRaw = rs.getString("producers_list");
+
+                String[] partsList;
+                if (partsRaw != null)
+                {
+                    partsList = partsRaw.split(",\\s*");
+                }
+                else
+                {
+                    partsList = new String[0];
+                }
+
+                String[] producersList;
+                if (producersRaw != null)
+                {
+                    producersList = producersRaw.split(",\\s*");
+                }
+                else
+                {
+                    producersList = new String[0];
+                }
+
+                VBox orderDetails = new VBox();
+                orderDetails.setPadding(new Insets(10));
+                orderDetails.setSpacing(10);
+
+                Label orderIdLabel = new Label();
+                Text orderIdText = new Text("Order ID: ");
+                orderIdText.setStyle("-fx-font-weight: bold;");
+                Text orderIdValueText = new Text(String.valueOf(orderID));
+                orderIdValueText.setStyle("-fx-font-weight: normal;");
+                orderIdLabel.setGraphic(new HBox(orderIdText, orderIdValueText));
+
+                Label dateLabel = new Label();
+                Text dateText = new Text("Date: ");
+                dateText.setStyle("-fx-font-weight: bold;");
+                Text dateValueText = new Text(orderDate);
+                dateValueText.setStyle("-fx-font-weight: normal;");
+                dateLabel.setGraphic(new HBox(dateText, dateValueText));
+
+                Label totalLabel = new Label();
+                Text totalText = new Text("Total Amount: ");
+                totalText.setStyle("-fx-font-weight: bold;");
+                Text totalValueText = new Text(totalAmount);
+                totalValueText.setStyle("-fx-font-weight: normal;");
+                totalLabel.setGraphic(new HBox(totalText, totalValueText));
+
+                Label clientLabel = new Label();
+                Text clientText = new Text("Client ID: ");
+                clientText.setStyle("-fx-font-weight: bold;");
+                Text clientValueText = new Text(clientId);
+                clientValueText.setStyle("-fx-font-weight: normal;");
+                clientLabel.setGraphic(new HBox(clientText, clientValueText));
+
+                Label partsLabel = new Label();
+                Text partsTitle = new Text("Parts: ");
+                partsTitle.setStyle("-fx-font-weight: bold;");
+                Text partsValue = new Text(String.join("\n", partsList));
+                partsValue.setStyle("-fx-font-weight: normal;");
+                partsLabel.setGraphic(new HBox(partsTitle, partsValue));
+
+                Label producersLabel = new Label();
+                Text producersTitle = new Text("Producers: ");
+                producersTitle.setStyle("-fx-font-weight: bold;");
+                Text producersValue = new Text(String.join("\n", producersList));
+                producersValue.setStyle("-fx-font-weight: normal;");
+                producersLabel.setGraphic(new HBox(producersTitle, producersValue));
+
+                orderDetails.getChildren().addAll(
+                        orderIdLabel, dateLabel, totalLabel, clientLabel,
+                        partsLabel, producersLabel
+                );
+
+                leftPane.getChildren().clear();
+                leftPane.getChildren().add(orderDetails);
+            }
         }
         catch (SQLException e)
         {
@@ -185,8 +280,11 @@ public class MainView extends Application
         }
     }
 
+
     private void showClientDetails(int clientId)
     {
+        leftPane.getChildren().clear();
+
         String URL = "jdbc:postgresql://localhost:5432/postgres";
         String USER = "postgres";
         String PASSWORD = "Ffdss321!";
@@ -236,7 +334,6 @@ public class MainView extends Application
 
                 clientIdLabel.setGraphic(new HBox(clientIdText, clientIdValueText));
 
-
                 Label nameLabel = new Label();
                 Text nameText = new Text("Name: ");
                 nameText.setStyle("-fx-font-weight: bold;");
@@ -254,7 +351,6 @@ public class MainView extends Application
 
                 lastNameLabel.setGraphic(new HBox(lastnameText, lastnameValueText));
 
-
                 Label orderListLabel = new Label();
                 Text orderListText = new Text("Orders: ");
                 orderListText.setStyle("-fx-font-weight: bold;");
@@ -262,7 +358,6 @@ public class MainView extends Application
                 orderListValueText.setStyle("-fx-font-weight: normal;");
 
                 orderListLabel.setGraphic(new HBox(orderListText, orderListValueText));
-
 
                 Label totalAmountLabel = new Label();
                 Text totalAmountText = new Text("Total: ");
@@ -442,6 +537,8 @@ public class MainView extends Application
                 Label orderDateLabel = new Label(orderDate);
                 Label totalAmountLabel = new Label(totalAmount);
                 Label partsListLabel = new Label(partsList);
+
+                orderIdLabel.setOnMouseClicked(event -> showOrderDetails(orderId));
 
                 orderIdLabel.setAlignment(Pos.CENTER);
                 orderDateLabel.setAlignment(Pos.CENTER);
