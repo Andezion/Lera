@@ -220,6 +220,12 @@ public class MainView extends Application
                 VBox orderDetails = new VBox();
                 orderDetails.setPadding(new Insets(10));
                 orderDetails.setSpacing(10);
+                orderDetails.setStyle("-fx-background-color: #ffffff; " +
+                        "-fx-border-color: #cccccc; " +
+                        "-fx-border-width: 2px; " +
+                        "-fx-border-radius: 8px; " +
+                        "-fx-background-radius: 8px; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0.3, 0, 4);");
 
                 Label orderIdLabel = new Label();
                 Text orderIdText = new Text("Order ID: ");
@@ -351,46 +357,45 @@ public class MainView extends Application
 
                 clientIdLabel.setGraphic(new HBox(clientIdText, clientIdValueText));
 
-//                Label nameLabel = new Label();
-//                Text nameText = new Text("Name: ");
-//                nameText.setStyle("-fx-font-weight: bold;");
-//                Text nameValueText = new Text(firstName);
-//                nameValueText.setStyle("-fx-font-weight: normal;");
-//
-//                nameLabel.setGraphic(new HBox(nameText, nameValueText));
-//
-//
-//                Label lastNameLabel = new Label();
-//                Text lastnameText = new Text("Surname: ");
-//                lastnameText.setStyle("-fx-font-weight: bold;");
-//                Text lastnameValueText = new Text(lastName);
-//                lastnameValueText.setStyle("-fx-font-weight: normal;");
-//
-//                lastNameLabel.setGraphic(new HBox(lastnameText, lastnameValueText));
-//
-//                Label orderListLabel = new Label();
-//                Text orderListText = new Text("Orders: ");
-//                orderListText.setStyle("-fx-font-weight: bold;");
-//                Text orderListValueText = new Text(orderList.toString());
-//                orderListValueText.setStyle("-fx-font-weight: normal;");
-//
-//                orderListLabel.setGraphic(new HBox(orderListText, orderListValueText));
-//
-//                Label totalAmountLabel = new Label();
-//                Text totalAmountText = new Text("Total: ");
-//                totalAmountText.setStyle("-fx-font-weight: bold;");
-//                Text totalAmountValueText = new Text(String.valueOf(totalSum));
-//                totalAmountValueText.setStyle("-fx-font-weight: normal;");
-//
-//                totalAmountLabel.setGraphic(new HBox(totalAmountText, totalAmountValueText));
+                Label nameLabel = new Label();
+                Text nameText = new Text("Name: ");
+                nameText.setStyle("-fx-font-weight: bold;");
+                Text nameValueText = new Text(firstName);
+                nameValueText.setStyle("-fx-font-weight: normal;");
 
-                clientDetails.getChildren().addAll(
-                        createDetailRow("Client ID", String.valueOf(clientId)),
-                        createDetailRow("Name", firstName),
-                        createDetailRow("Surname", lastName),
-                        createDetailRow("Orders", orderList.toString().isEmpty() ? "No orders" : orderList.toString()),
-                        createDetailRow("Total", String.format("%.2f", totalSum))
-                );
+                nameLabel.setGraphic(new HBox(nameText, nameValueText));
+
+
+                Label lastNameLabel = new Label();
+                Text lastnameText = new Text("Surname: ");
+                lastnameText.setStyle("-fx-font-weight: bold;");
+                Text lastnameValueText = new Text(lastName);
+                lastnameValueText.setStyle("-fx-font-weight: normal;");
+
+                lastNameLabel.setGraphic(new HBox(lastnameText, lastnameValueText));
+
+                Label orderListLabel = new Label();
+                Text orderListText = new Text("Orders: ");
+                orderListText.setStyle("-fx-font-weight: bold;");
+                Text orderListValueText = new Text(orderList.toString());
+                orderListValueText.setStyle("-fx-font-weight: normal;");
+
+                orderListLabel.setGraphic(new HBox(orderListText, orderListValueText));
+
+                Label totalAmountLabel = new Label();
+                Text totalAmountText = new Text("Total: ");
+                totalAmountText.setStyle("-fx-font-weight: bold;");
+                Text totalAmountValueText = new Text(String.valueOf(totalSum));
+                totalAmountValueText.setStyle("-fx-font-weight: normal;");
+
+                totalAmountLabel.setGraphic(new HBox(totalAmountText, totalAmountValueText));
+
+
+                clientDetails.getChildren().add(clientIdLabel);
+                clientDetails.getChildren().add(nameLabel);
+                clientDetails.getChildren().add(lastNameLabel);
+                clientDetails.getChildren().add(orderListLabel);
+                clientDetails.getChildren().add(totalAmountLabel);
 
                 leftPane.getChildren().clear();
                 leftPane.getChildren().add(clientDetails);
