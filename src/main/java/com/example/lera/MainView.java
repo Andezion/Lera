@@ -278,6 +278,19 @@ public class MainView extends Application
         }
     }
 
+    private HBox createDetailRow(String label, String value)
+    {
+        Text labelText = new Text(label + ": ");
+        labelText.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+        Text valueText = new Text(value);
+        valueText.setStyle("-fx-font-size: 14px;");
+
+        HBox hBox = new HBox(labelText, valueText);
+        hBox.setSpacing(5);
+        return hBox;
+    }
+
     private void showClientDetails(int clientId)
     {
         leftPane.getChildren().clear();
@@ -322,53 +335,62 @@ public class MainView extends Application
                 VBox clientDetails = new VBox();
                 clientDetails.setPadding(new Insets(10));
                 clientDetails.setSpacing(10);
+                clientDetails.setStyle("-fx-background-color: #ffffff; " +
+                                "-fx-border-color: #cccccc; " +
+                                "-fx-border-width: 2px; " +
+                                "-fx-border-radius: 8px; " +
+                                "-fx-background-radius: 8px; " +
+                                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0.3, 0, 4);");
 
                 Label clientIdLabel = new Label();
                 Text clientIdText = new Text("Client ID: ");
                 clientIdText.setStyle("-fx-font-weight: bold;");
+
                 Text clientIdValueText = new Text(String.valueOf(clientId));
                 clientIdValueText.setStyle("-fx-font-weight: normal;");
 
                 clientIdLabel.setGraphic(new HBox(clientIdText, clientIdValueText));
 
-                Label nameLabel = new Label();
-                Text nameText = new Text("Name: ");
-                nameText.setStyle("-fx-font-weight: bold;");
-                Text nameValueText = new Text(firstName);
-                nameValueText.setStyle("-fx-font-weight: normal;");
+//                Label nameLabel = new Label();
+//                Text nameText = new Text("Name: ");
+//                nameText.setStyle("-fx-font-weight: bold;");
+//                Text nameValueText = new Text(firstName);
+//                nameValueText.setStyle("-fx-font-weight: normal;");
+//
+//                nameLabel.setGraphic(new HBox(nameText, nameValueText));
+//
+//
+//                Label lastNameLabel = new Label();
+//                Text lastnameText = new Text("Surname: ");
+//                lastnameText.setStyle("-fx-font-weight: bold;");
+//                Text lastnameValueText = new Text(lastName);
+//                lastnameValueText.setStyle("-fx-font-weight: normal;");
+//
+//                lastNameLabel.setGraphic(new HBox(lastnameText, lastnameValueText));
+//
+//                Label orderListLabel = new Label();
+//                Text orderListText = new Text("Orders: ");
+//                orderListText.setStyle("-fx-font-weight: bold;");
+//                Text orderListValueText = new Text(orderList.toString());
+//                orderListValueText.setStyle("-fx-font-weight: normal;");
+//
+//                orderListLabel.setGraphic(new HBox(orderListText, orderListValueText));
+//
+//                Label totalAmountLabel = new Label();
+//                Text totalAmountText = new Text("Total: ");
+//                totalAmountText.setStyle("-fx-font-weight: bold;");
+//                Text totalAmountValueText = new Text(String.valueOf(totalSum));
+//                totalAmountValueText.setStyle("-fx-font-weight: normal;");
+//
+//                totalAmountLabel.setGraphic(new HBox(totalAmountText, totalAmountValueText));
 
-                nameLabel.setGraphic(new HBox(nameText, nameValueText));
-
-
-                Label lastNameLabel = new Label();
-                Text lastnameText = new Text("Name: ");
-                lastnameText.setStyle("-fx-font-weight: bold;");
-                Text lastnameValueText = new Text(lastName);
-                lastnameValueText.setStyle("-fx-font-weight: normal;");
-
-                lastNameLabel.setGraphic(new HBox(lastnameText, lastnameValueText));
-
-                Label orderListLabel = new Label();
-                Text orderListText = new Text("Orders: ");
-                orderListText.setStyle("-fx-font-weight: bold;");
-                Text orderListValueText = new Text(orderList.toString());
-                orderListValueText.setStyle("-fx-font-weight: normal;");
-
-                orderListLabel.setGraphic(new HBox(orderListText, orderListValueText));
-
-                Label totalAmountLabel = new Label();
-                Text totalAmountText = new Text("Total: ");
-                totalAmountText.setStyle("-fx-font-weight: bold;");
-                Text totalAmountValueText = new Text(String.valueOf(totalSum));
-                totalAmountValueText.setStyle("-fx-font-weight: normal;");
-
-                totalAmountLabel.setGraphic(new HBox(totalAmountText, totalAmountValueText));
-
-                clientDetails.getChildren().add(clientIdLabel);
-                clientDetails.getChildren().add(nameLabel);
-                clientDetails.getChildren().add(lastNameLabel);
-                clientDetails.getChildren().add(orderListLabel);
-                clientDetails.getChildren().add(totalAmountLabel);
+                clientDetails.getChildren().addAll(
+                        createDetailRow("Client ID", String.valueOf(clientId)),
+                        createDetailRow("Name", firstName),
+                        createDetailRow("Surname", lastName),
+                        createDetailRow("Orders", orderList.toString().isEmpty() ? "No orders" : orderList.toString()),
+                        createDetailRow("Total", String.format("%.2f", totalSum))
+                );
 
                 leftPane.getChildren().clear();
                 leftPane.getChildren().add(clientDetails);
@@ -408,7 +430,7 @@ public class MainView extends Application
             grid.setAlignment(Pos.CENTER);
             grid.setStyle("-fx-grid-lines-visible: true; -fx-border-color: black; -fx-border-width: 1px;");
 
-            String[] headers = {"ID", "First Name", "Last Name", "Order ID", "Order Date", "Total Amount"};
+            String[] headers = {"ID", "Name", "Surname", "Order ID", "Order Date", "Total Amount"};
             for (int col = 0; col < headers.length; col++)
             {
                 Label headerLabel = new Label(headers[col]);
